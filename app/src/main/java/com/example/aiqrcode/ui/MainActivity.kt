@@ -1,4 +1,4 @@
-package com.example.aiqrcode
+package com.example.aiqrcode.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.aiqrcode.ui.theme.QrCodeTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

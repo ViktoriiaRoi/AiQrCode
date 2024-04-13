@@ -1,4 +1,4 @@
-package com.example.aiqrcode
+package com.example.aiqrcode.ui
 
 import android.graphics.Bitmap
 
