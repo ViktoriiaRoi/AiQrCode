@@ -3,6 +3,10 @@ package com.example.aiqrcode.ui
 import android.graphics.Bitmap
 
 data class UiState(
-    val loading: Boolean = false,
+    val setupParams: SetupParams = SetupParams(),
     val bitmap: Bitmap? = null
+)
+
+data class SetupParams(
+    val prompt: String = ""
 )

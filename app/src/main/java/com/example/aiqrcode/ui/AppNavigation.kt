@@ -43,10 +43,13 @@ fun AppNavigation(
         modifier = Modifier.fillMaxSize()
     ) {
         composable(route = Routes.Setup.route) {
-            SetupScreen(sendRequest = {
-                viewModel.sendRequest()
-                navController.navigate(Routes.Result.route)
-            })
+            SetupScreen(
+                params = uiState.setupParams,
+                updateParams = viewModel::updateParams,
+                sendRequest = {
+                    viewModel.sendRequest()
+                    navController.navigate(Routes.Result.route)
+                })
         }
         composable(route = Routes.Result.route) {
             ResultScreen(uiState.bitmap)

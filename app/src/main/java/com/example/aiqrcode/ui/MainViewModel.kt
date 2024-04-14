@@ -26,20 +26,24 @@ class MainViewModel @Inject constructor(
     private val _sideEffects = Channel<SideEffect>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
+    fun updateParams(params: SetupParams) = viewModelScope.launch {
+        _uiState.update { it.copy(setupParams = params) }
+    }
+
     fun sendRequest() = viewModelScope.launch(Dispatchers.IO) {
         _uiState.update { it.copy(bitmap = null) }
 
-        val result = imageRepository.generateImage()
-        result.onSuccess { bytes ->
-            val bitmap = convertToBitmap(bytes)
-            if (bitmap != null) {
-                _uiState.update { it.copy(bitmap = bitmap) }
-            } else {
-                _sideEffects.send(SideEffect.ShowError("Failed to decode image"))
+        imageRepository.generateImage(_uiState.value.setupParams)
+            .onSuccess { bytes ->
+                val bitmap = convertToBitmap(bytes)
+                if (bitmap != null) {
+                    _uiState.update { it.copy(bitmap = bitmap) }
+                } else {
+                    _sideEffects.send(SideEffect.ShowError("Failed to decode image"))
+                }
+            }.onFailure { error ->
+                _sideEffects.send(SideEffect.ShowError(error.message ?: "Unexpected error"))
             }
-        }.onFailure { error ->
-            _sideEffects.send(SideEffect.ShowError(error.message ?: "Unexpected error"))
-        }
     }
 
     private fun convertToBitmap(bytes: ByteArray): Bitmap? {
