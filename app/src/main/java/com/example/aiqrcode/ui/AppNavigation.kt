@@ -45,10 +45,13 @@ fun AppNavigation(
         composable(route = Routes.Setup.route) {
             SetupScreen(
                 params = uiState.setupParams,
+                errors = uiState.setupErrors,
                 updateParams = viewModel::updateParams,
                 sendRequest = {
-                    viewModel.sendRequest()
-                    navController.navigate(Routes.Result.route)
+                    if (viewModel.validateFields()) {
+                        viewModel.sendRequest()
+                        navController.navigate(Routes.Result.route)
+                    }
                 })
         }
         composable(route = Routes.Result.route) {

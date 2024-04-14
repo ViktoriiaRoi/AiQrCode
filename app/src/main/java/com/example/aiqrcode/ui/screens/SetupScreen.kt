@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.aiqrcode.ui.SetupErrors
 import com.example.aiqrcode.ui.SetupParams
 
 @Composable
 fun SetupScreen(
-    params: SetupParams,
+    params: SetupParams = SetupParams(),
+    errors: SetupErrors = SetupErrors(),
     updateParams: (SetupParams) -> Unit = {},
     sendRequest: () -> Unit = {}
 ) {
@@ -29,7 +32,7 @@ fun SetupScreen(
             .fillMaxSize()
             .padding(32.dp)
     ) {
-        ParamsList(params, updateParams)
+        ParamsList(params, errors, updateParams)
         GenerateButton(sendRequest)
     }
 }
@@ -37,16 +40,23 @@ fun SetupScreen(
 @Composable
 private fun ParamsList(
     params: SetupParams,
+    errors: SetupErrors,
     updateParams: (SetupParams) -> Unit = {},
 ) {
-    Column {
-        ParamTextField(params.prompt, "Prompt") { updateParams(params.copy(prompt = it)) }
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        ParamTextField(params.website, errors.websiteError, "Website") {
+            updateParams(params.copy(website = it))
+        }
+        ParamTextField(params.prompt, errors.promptError, "Prompt") {
+            updateParams(params.copy(prompt = it))
+        }
     }
 }
 
 @Composable
 private fun ParamTextField(
     value: String,
+    error: String?,
     label: String,
     updateValue: (String) -> Unit = {},
 ) {
@@ -56,7 +66,17 @@ private fun ParamTextField(
         label = { Text(label) },
         minLines = 3,
         maxLines = 6,
-        modifier = Modifier.fillMaxWidth()
+        isError = error != null,
+        modifier = Modifier.fillMaxWidth(),
+        supportingText = {
+            if (error != null) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = error,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
     )
 }
 
@@ -75,5 +95,5 @@ private fun GenerateButton(onClick: () -> Unit = {}) {
 @Preview(showSystemUi = true)
 @Composable
 private fun SetupScreenPreview() {
-    SetupScreen(params = SetupParams())
+    SetupScreen()
 }

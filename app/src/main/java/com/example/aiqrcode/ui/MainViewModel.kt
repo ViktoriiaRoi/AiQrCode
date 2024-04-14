@@ -1,10 +1,10 @@
 package com.example.aiqrcode.ui
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aiqrcode.data.StableDiffusionRepository
+import com.example.aiqrcode.helpers.ImageHelper
+import com.example.aiqrcode.helpers.QrCodeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -17,7 +17,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val imageRepository: StableDiffusionRepository
+    private val imageRepository: StableDiffusionRepository,
+    private val qrCodeHelper: QrCodeHelper,
+    private val imageHelper: ImageHelper,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
@@ -26,31 +28,50 @@ class MainViewModel @Inject constructor(
     private val _sideEffects = Channel<SideEffect>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
+    private val params get() = _uiState.value.setupParams
+
     fun updateParams(params: SetupParams) = viewModelScope.launch {
         _uiState.update { it.copy(setupParams = params) }
+    }
+
+    fun validateFields(): Boolean {
+        val websiteError = if (params.website.isBlank()) "Cannot be empty" else null
+        val promptError = if (params.prompt.isBlank()) "Cannot be empty" else null
+        val errors = SetupErrors(websiteError, promptError)
+
+        if (errors.hasNoErrors()) {
+            return true
+        } else {
+            _uiState.update { it.copy(setupErrors = errors) }
+            return false
+        }
     }
 
     fun sendRequest() = viewModelScope.launch(Dispatchers.IO) {
         _uiState.update { it.copy(bitmap = null) }
 
-        imageRepository.generateImage(_uiState.value.setupParams)
-            .onSuccess { bytes ->
-                val bitmap = convertToBitmap(bytes)
-                if (bitmap != null) {
-                    _uiState.update { it.copy(bitmap = bitmap) }
-                } else {
-                    _sideEffects.send(SideEffect.ShowError("Failed to decode image"))
-                }
-            }.onFailure { error ->
-                _sideEffects.send(SideEffect.ShowError(error.message ?: "Unexpected error"))
-            }
+        val qrCodeImage = qrCodeHelper.generateQrCode(params.website)
+        if (qrCodeImage == null) {
+            postError("Failed to generate QR code")
+            return@launch
+        }
+
+        val encodedImage = imageHelper.encodeImageString(qrCodeImage)
+        imageRepository.generateImage(params.prompt, encodedImage)
+            .onSuccess { processImage(it) }
+            .onFailure { postError(it.message ?: "Unexpected error") }
     }
 
-    private fun convertToBitmap(bytes: ByteArray): Bitmap? {
-        return try {
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        } catch (e: Exception) {
-            null
+    private suspend fun processImage(imageString: String) {
+        val decoded = imageHelper.decodeImageString(imageString)
+        if (decoded != null) {
+            _uiState.update { it.copy(bitmap = decoded) }
+        } else {
+            postError("Failed to decode image")
         }
+    }
+
+    private suspend fun postError(message: String) {
+        _sideEffects.send(SideEffect.ShowError(message))
     }
 }
