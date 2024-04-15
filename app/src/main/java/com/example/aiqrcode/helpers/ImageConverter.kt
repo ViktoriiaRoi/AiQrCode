@@ -5,12 +5,12 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import java.io.ByteArrayOutputStream
 
-interface ImageHelper {
+interface ImageConverter {
     fun encodeImageString(bitmap: Bitmap): String
     fun decodeImageString(imageString: String): Bitmap?
 }
 
-class ImageHelperImpl : ImageHelper {
+class ImageConverterImpl : ImageConverter {
     override fun encodeImageString(bitmap: Bitmap): String {
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)

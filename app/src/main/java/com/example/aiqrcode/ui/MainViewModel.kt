@@ -3,7 +3,7 @@ package com.example.aiqrcode.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aiqrcode.data.StableDiffusionRepository
-import com.example.aiqrcode.helpers.ImageHelper
+import com.example.aiqrcode.helpers.ImageConverter
 import com.example.aiqrcode.helpers.QrCodeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val imageRepository: StableDiffusionRepository,
     private val qrCodeHelper: QrCodeHelper,
-    private val imageHelper: ImageHelper,
+    private val imageConverter: ImageConverter
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
@@ -56,14 +56,14 @@ class MainViewModel @Inject constructor(
             return@launch
         }
 
-        val encodedImage = imageHelper.encodeImageString(qrCodeImage)
+        val encodedImage = imageConverter.encodeImageString(qrCodeImage)
         imageRepository.generateImage(params.prompt, encodedImage)
             .onSuccess { processImage(it) }
             .onFailure { postError(it.message ?: "Unexpected error") }
     }
 
     private suspend fun processImage(imageString: String) {
-        val decoded = imageHelper.decodeImageString(imageString)
+        val decoded = imageConverter.decodeImageString(imageString)
         if (decoded != null) {
             _uiState.update { it.copy(bitmap = decoded) }
         } else {

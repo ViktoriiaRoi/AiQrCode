@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.aiqrcode.helpers.GalleryHelper
 import com.example.aiqrcode.ui.screens.ResultScreen
 import com.example.aiqrcode.ui.screens.SetupScreen
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,8 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun AppNavigation(
     viewModel: MainViewModel = viewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    galleryHelper: GalleryHelper
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
@@ -55,7 +57,10 @@ fun AppNavigation(
                 })
         }
         composable(route = Routes.Result.route) {
-            ResultScreen(uiState.bitmap)
+            ResultScreen(
+                uiState.bitmap,
+                onBack = { navController.popBackStack() },
+                onSave = { bitmap -> galleryHelper.saveImage(bitmap) })
         }
     }
 }
