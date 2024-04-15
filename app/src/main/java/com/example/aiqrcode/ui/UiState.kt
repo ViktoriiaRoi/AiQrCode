@@ -10,7 +10,8 @@ data class UiState(
 
 data class SetupParams(
     val website: String = "",
-    val prompt: String = ""
+    val prompt: String = "",
+    val weight: Float = 1.5f
 )
 
 data class SetupErrors(

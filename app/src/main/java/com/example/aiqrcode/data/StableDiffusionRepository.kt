@@ -12,7 +12,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 
 interface StableDiffusionRepository {
-    suspend fun generateImage(prompt: String, image: String): Result<String>
+    suspend fun generateImage(prompt: String, image: String, weight: Float): Result<String>
 }
 
 class StableDiffusionRepositoryImpl(
@@ -21,11 +21,11 @@ class StableDiffusionRepositoryImpl(
 
     private val gson = Gson()
 
-    override suspend fun generateImage(prompt: String, image: String): Result<String> {
+    override suspend fun generateImage(prompt: String, image: String, weight: Float): Result<String> {
         val imageRequest = createImageRequest(
             prompt = prompt,
             image = image,
-            weight = 1.8f
+            weight = weight
         )
         val mediaType = "application/json".toMediaType()
         val requestBody = gson.toJson(imageRequest).toRequestBody(mediaType)

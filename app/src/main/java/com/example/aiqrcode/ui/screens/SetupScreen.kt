@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aiqrcode.ui.SetupErrors
 import com.example.aiqrcode.ui.SetupParams
+import kotlin.text.*
 
 @Composable
 fun SetupScreen(
@@ -50,6 +52,9 @@ private fun ParamsList(
         ParamTextField(params.prompt, errors.promptError, "Prompt") {
             updateParams(params.copy(prompt = it))
         }
+        WeightSlider(params.weight) {
+            updateParams(params.copy(weight = it))
+        }
     }
 }
 
@@ -78,6 +83,19 @@ private fun ParamTextField(
             }
         }
     )
+}
+
+@Composable
+fun WeightSlider(value: Float, updateValue: (Float) -> Unit) {
+    Column {
+        Text(text = "Weight: %.2f".format(value), modifier = Modifier.padding(start = 8.dp))
+        Slider(
+            value = value,
+            onValueChange = updateValue,
+            steps = 19,
+            valueRange = 1f..2f
+        )
+    }
 }
 
 @Composable

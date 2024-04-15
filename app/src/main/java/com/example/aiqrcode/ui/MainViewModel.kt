@@ -57,7 +57,7 @@ class MainViewModel @Inject constructor(
         }
 
         val encodedImage = imageConverter.encodeImageString(qrCodeImage)
-        imageRepository.generateImage(params.prompt, encodedImage)
+        imageRepository.generateImage(params.prompt, encodedImage, params.weight)
             .onSuccess { processImage(it) }
             .onFailure { postError(it.message ?: "Unexpected error") }
     }
