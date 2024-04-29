@@ -16,14 +16,17 @@ class QrCodeHelperImpl : QrCodeHelper {
     private val writer = QRCodeWriter()
 
     override fun generateQrCode(content: String): Bitmap? = try {
-        val hints = mapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.H)
+        val hints = mapOf(
+            EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.H,
+            EncodeHintType.MARGIN to 1
+        )
         val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, 512, 512, hints)
-        val width = bitMatrix.width
-        val height = bitMatrix.height
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-        for (x in 0 until width) {
-            for (y in 0 until height) {
-                bitmap.setPixel(x, y, if (bitMatrix[x, y]) Color.BLACK else Color.WHITE)
+        val bitmap = Bitmap.createBitmap(768, 768, Bitmap.Config.RGB_565).apply {
+            eraseColor(Color.parseColor("#808080"))
+        }
+        for (x in 0 until bitMatrix.width) {
+            for (y in 0 until bitMatrix.height) {
+                bitmap.setPixel(x + 128, y + 128, if (bitMatrix[x, y]) Color.BLACK else Color.WHITE)
             }
         }
         bitmap
