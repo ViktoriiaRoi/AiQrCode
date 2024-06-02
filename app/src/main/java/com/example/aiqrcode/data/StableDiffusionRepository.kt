@@ -54,6 +54,7 @@ class StableDiffusionRepositoryImpl(
     private fun createImageRequest(prompt: String, image: String, weight: Float) =
         ImageRequest(
             prompt = prompt,
+            negative_prompt = "nsfw",
             alwayson_scripts = Scripts(
                 controlnet = ControlNet(
                     args = listOf(

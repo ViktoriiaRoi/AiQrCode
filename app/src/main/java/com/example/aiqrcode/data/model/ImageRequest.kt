@@ -2,6 +2,7 @@ package com.example.aiqrcode.data.model
 
 data class ImageRequest(
     val prompt: String,
+    val negative_prompt: String = "",
     val cfg_scale: Int = 7,
     val width: Int = 512,
     val height: Int = 512,

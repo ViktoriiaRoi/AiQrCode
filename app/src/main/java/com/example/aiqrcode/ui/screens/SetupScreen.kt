@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aiqrcode.ui.SetupErrors
 import com.example.aiqrcode.ui.SetupParams
-import kotlin.text.*
 
 @Composable
 fun SetupScreen(
@@ -86,9 +85,9 @@ private fun ParamTextField(
 }
 
 @Composable
-fun WeightSlider(value: Float, updateValue: (Float) -> Unit) {
+private fun WeightSlider(value: Float, updateValue: (Float) -> Unit) {
     Column {
-        Text(text = "Weight: %.2f".format(value), modifier = Modifier.padding(start = 8.dp))
+        Text(text = "Scannability: %.2f".format(value), modifier = Modifier.padding(start = 8.dp))
         Slider(
             value = value,
             onValueChange = updateValue,
